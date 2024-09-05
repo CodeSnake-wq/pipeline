@@ -58,13 +58,19 @@ pipeline {
 
     post {
         always {
-            emailext(
-                subject: "Jenkins: Pipeline Completed",
-                body: """The Jenkins pipeline has completed with status: ${currentBuild.currentResult}.
-                        \n\nCheck the attached logs for more details.""",
-                to: "${EMAIL_RECIPIENT}",
+            echo 'Pipeline complete.'
+        }
+        success {
+            mail to: 'aakashjain2004r@gmial.com',
+                subject: "SUCCESS: Jenkins Pipeline - ${env.JOB_NAME} Build #${env.BUILD_NUMBER}",
+                body: "The Jenkins pipeline for ${env.JOB_NAME} completed successfully.",
                 attachLog: true
-            )
+        }
+        failure {
+            mail to: 'aakashjain2004r@gmail.com',
+                subject: "FAILURE: Jenkins Pipeline - ${env.JOB_NAME} Build #${env.BUILD_NUMBER}",
+                body: "The Jenkins pipeline for ${env.JOB_NAME} failed. Please check the logs.",
+                attachLog: true
         }
     }
 }
