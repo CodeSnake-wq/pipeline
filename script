@@ -1,6 +1,10 @@
 pipeline {
     agent any
 
+    environment {
+        EMAIL_RECIPIENT = 'aakashjain2004r@gmail.com' // Set your email recipient
+    }
+
     stages {
         stage('Build') {
             steps {
@@ -58,16 +62,24 @@ pipeline {
             echo 'Pipeline complete.'
         }
         success {
-            mail to: 'aakashjain2004r@gmail.com',
+            emailext(
                 subject: "SUCCESS: Jenkins Pipeline - ${env.JOB_NAME} Build #${env.BUILD_NUMBER}",
-                body: "The Jenkins pipeline for ${env.JOB_NAME} completed successfully.",
+                body: """<p>The Jenkins pipeline for <b>${env.JOB_NAME}</b> completed successfully.</p>
+                         <p>Check the attached logs for more details.</p>""",
+                to: "${EMAIL_RECIPIENT}",
+                mimeType: 'text/html',
                 attachLog: true
+            )
         }
         failure {
-            mail to: 'aakashjain2004r@gmail.com',
+            emailext(
                 subject: "FAILURE: Jenkins Pipeline - ${env.JOB_NAME} Build #${env.BUILD_NUMBER}",
-                body: "The Jenkins pipeline for ${env.JOB_NAME} failed. Please check the logs.",
+                body: """<p>The Jenkins pipeline for <b>${env.JOB_NAME}</b> has failed.</p>
+                         <p>Please check the attached logs for details and troubleshooting.</p>""",
+                to: "${EMAIL_RECIPIENT}",
+                mimeType: 'text/html',
                 attachLog: true
+            )
         }
     }
 }
