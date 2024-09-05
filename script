@@ -1,57 +1,54 @@
 pipeline {
     agent any
 
-    environment {
-        EMAIL_RECIPIENT = 'aakashjain2004r@gmail.com'
-    }
-
     stages {
         stage('Build') {
             steps {
                 echo 'Building...'
-                // Add your build steps here (e.g., using Maven, Gradle, etc.)
+                // Use Maven for building the project
+                // sh 'mvn clean package'
             }
         }
-
         stage('Unit and Integration Tests') {
             steps {
                 echo 'Running Unit and Integration Tests...'
-                // Add your test steps here (e.g., using JUnit, TestNG, etc.)
+                // Use JUnit for unit testing and Selenium for integration tests
+                // sh 'mvn test'
             }
         }
-
         stage('Code Analysis') {
             steps {
                 echo 'Performing Code Analysis...'
-                // Add your code analysis steps here (e.g., using SonarQube, Checkstyle, etc.)
+                // Use SonarQube for code analysis
+                // sh 'sonar-scanner'
             }
         }
-
         stage('Security Scan') {
             steps {
                 echo 'Running Security Scan...'
-                // Add your security scan steps here (e.g., using OWASP ZAP, Snyk, etc.)
+                // Use OWASP Dependency-Check for security scanning
+                // sh 'dependency-check --scan .'
             }
         }
-
         stage('Deploy to Staging') {
             steps {
                 echo 'Deploying to Staging...'
-                // Add your deployment steps here (e.g., deploying to an AWS EC2 instance)
+                // Deploy to AWS EC2 instance using SSH or AWS CLI
+                // sh 'scp -i your-key.pem target/your-app.jar ec2-user@your-staging-instance:/path/to/deploy'
             }
         }
-
         stage('Integration Tests on Staging') {
             steps {
                 echo 'Running Integration Tests on Staging...'
-                // Add your staging integration test steps here
+                // Use a tool like Selenium or Postman for testing
+                // sh 'run-staging-tests.sh'
             }
         }
-
         stage('Deploy to Production') {
             steps {
                 echo 'Deploying to Production...'
-                // Add your production deployment steps here
+                // Deploy to production server
+                // sh 'scp -i your-key.pem target/your-app.jar ec2-user@your-production-instance:/path/to/deploy'
             }
         }
     }
@@ -61,7 +58,7 @@ pipeline {
             echo 'Pipeline complete.'
         }
         success {
-            mail to: 'aakashjain2004r@gmial.com',
+            mail to: 'aakashjain2004r@gmail.com',
                 subject: "SUCCESS: Jenkins Pipeline - ${env.JOB_NAME} Build #${env.BUILD_NUMBER}",
                 body: "The Jenkins pipeline for ${env.JOB_NAME} completed successfully.",
                 attachLog: true
