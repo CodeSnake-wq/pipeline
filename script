@@ -2,65 +2,99 @@ pipeline {
     agent any
 
     environment {
-        EMAIL_RECIPIENT = 'aakashjain2004r@gmail.com' // Set your email recipient
+        EMAIL_RECIPIENT = 'aakashjain2004r@gmail.com'
     }
 
     stages {
         stage('Build') {
             steps {
-                echo 'Building...'
-                // Use Maven for building the project
+                echo 'Building the code using Maven...'
                 // sh 'mvn clean package'
             }
         }
         stage('Unit and Integration Tests') {
             steps {
-                echo 'Running Unit and Integration Tests...'
-                // Use JUnit for unit testing and Selenium for integration tests
+                echo 'Running Unit and Integration Tests using JUnit and Selenium...'
                 // sh 'mvn test'
+            }
+            post {
+                success {
+                    emailext(
+                        subject: "SUCCESS: Unit and Integration Tests - ${env.JOB_NAME} Build #${env.BUILD_NUMBER}",
+                        body: """<p>Unit and Integration Tests for <b>${env.JOB_NAME}</b> completed successfully.</p>
+                                 <p>Check the attached logs for more details.</p>""",
+                        to: "${EMAIL_RECIPIENT}",
+                        mimeType: 'text/html',
+                        attachLog: true
+                    )
+                }
+                failure {
+                    emailext(
+                        subject: "FAILURE: Unit and Integration Tests - ${env.JOB_NAME} Build #${env.BUILD_NUMBER}",
+                        body: """<p>Unit and Integration Tests for <b>${env.JOB_NAME}</b> failed.</p>
+                                 <p>Please check the attached logs for details.</p>""",
+                        to: "${EMAIL_RECIPIENT}",
+                        mimeType: 'text/html',
+                        attachLog: true
+                    )
+                }
             }
         }
         stage('Code Analysis') {
             steps {
-                echo 'Performing Code Analysis...'
-                // Use SonarQube for code analysis
+                echo 'Performing Code Analysis using SonarQube...'
                 // sh 'sonar-scanner'
             }
         }
         stage('Security Scan') {
             steps {
-                echo 'Running Security Scan...'
-                // Use OWASP Dependency-Check for security scanning
+                echo 'Running Security Scan using OWASP Dependency-Check...'
                 // sh 'dependency-check --scan .'
+            }
+            post {
+                success {
+                    emailext(
+                        subject: "SUCCESS: Security Scan - ${env.JOB_NAME} Build #${env.BUILD_NUMBER}",
+                        body: """<p>Security Scan for <b>${env.JOB_NAME}</b> completed successfully.</p>
+                                 <p>Check the attached logs for more details.</p>""",
+                        to: "${EMAIL_RECIPIENT}",
+                        mimeType: 'text/html',
+                        attachLog: true
+                    )
+                }
+                failure {
+                    emailext(
+                        subject: "FAILURE: Security Scan - ${env.JOB_NAME} Build #${env.BUILD_NUMBER}",
+                        body: """<p>Security Scan for <b>${env.JOB_NAME}</b> failed.</p>
+                                 <p>Please check the attached logs for details.</p>""",
+                        to: "${EMAIL_RECIPIENT}",
+                        mimeType: 'text/html',
+                        attachLog: true
+                    )
+                }
             }
         }
         stage('Deploy to Staging') {
             steps {
-                echo 'Deploying to Staging...'
-                // Deploy to AWS EC2 instance using SSH or AWS CLI
-                // sh 'scp -i your-key.pem target/your-app.jar ec2-user@your-staging-instance:/path/to/deploy'
+                echo 'Deploying to Staging using AWS CLI...'
+                // sh 'aws deploy your-app-staging'
             }
         }
         stage('Integration Tests on Staging') {
             steps {
-                echo 'Running Integration Tests on Staging...'
-                // Use a tool like Selenium or Postman for testing
-                // sh 'run-staging-tests.sh'
+                echo 'Running Integration Tests on Staging using Selenium/Postman...'
+                // sh './run-integration-tests.sh'
             }
         }
         stage('Deploy to Production') {
             steps {
-                echo 'Deploying to Production...'
-                // Deploy to production server
-                // sh 'scp -i your-key.pem target/your-app.jar ec2-user@your-production-instance:/path/to/deploy'
+                echo 'Deploying to Production using AWS CLI...'
+                // sh 'aws deploy your-app-production'
             }
         }
     }
 
     post {
-        always {
-            echo 'Pipeline complete.'
-        }
         success {
             emailext(
                 subject: "SUCCESS: Jenkins Pipeline - ${env.JOB_NAME} Build #${env.BUILD_NUMBER}",
@@ -74,12 +108,15 @@ pipeline {
         failure {
             emailext(
                 subject: "FAILURE: Jenkins Pipeline - ${env.JOB_NAME} Build #${env.BUILD_NUMBER}",
-                body: """<p>The Jenkins pipeline for <b>${env.JOB_NAME}</b> has failed.</p>
-                         <p>Please check the attached logs for details and troubleshooting.</p>""",
+                body: """<p>The Jenkins pipeline for <b>${env.JOB_NAME}</b> failed.</p>
+                         <p>Please check the attached logs for details.</p>""",
                 to: "${EMAIL_RECIPIENT}",
                 mimeType: 'text/html',
                 attachLog: true
             )
+        }
+        always {
+            echo 'Pipeline complete.'
         }
     }
 }
